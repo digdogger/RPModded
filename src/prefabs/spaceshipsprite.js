@@ -10,7 +10,7 @@ class Spaceship extends Phaser.GameObjects.Sprite {
         this.on('animationcomplete', () => {    
             this.anims.play(animation, true);                      
         });
-
+        this.direction = Math.random() > 0.5 ; 
     } 
     
 
@@ -26,13 +26,18 @@ class Spaceship extends Phaser.GameObjects.Sprite {
         });
     }
     update() {
-        this.x -= this.moveSpeed;
-        if(this.x <= 0 - this.width) {
-            this.reset();
+        if(this.direction){
+            this.x -= this.moveSpeed;
+        } else {
+            this.x += this.moveSpeed;
+        }
+
+        
+        if((this.x <= 0 - this.width ) && this.direction) {
+            this.x = game.config.width;
+        } else if ((this.x > game.config.width) && !this.direction) {
+            this.x = 0;
         }
     }
 
-    reset() {
-        this.x = game.config.width;
-    }
 }

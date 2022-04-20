@@ -1,3 +1,4 @@
+
 class Play extends Phaser.Scene {
     constructor() {
         super("playScene");
@@ -13,12 +14,35 @@ class Play extends Phaser.Scene {
         this.load.image('cannon', './assets/cannon.png');
         this.load.image('top', './assets/borderh.png');
         this.load.image('side', './assets/borderv.png');
+        this.load.image('lillies', './assets/lillies.png');
         // load spritesheet
         this.load.spritesheet('splash', './assets/splash.png', {frameWidth: 115, frameHeight: 56, startFrame: 1, endFrame: 7});
         this.load.spritesheet('fishanim', './assets/fishsheet.png', {frameWidth: 95, frameHeight: 54, startFrame: 0, endFrame: 8});
     }
 
     create() {
+
+        // place tile sprite
+        this.RPMBG = this.add.tileSprite(0, 0, 1366, 768, 'RPMBG').setOrigin(0, 0);
+        this.add.tileSprite(0, 0, 1366, 768, 'grass').setOrigin(0, 0);
+        this.lillies = this.add.tileSprite(0, 0, 1366, 768, 'lillies').setOrigin(0, 0);
+
+        let timeConfig = {
+            fontFamily: 'Courier New',
+            fontSize: '50px',
+            color: '#FFFFFF',
+            strokeThickness: 10,
+            stroke: '#A97D3E',
+            align: 'left',
+            padding: {
+                top: 5,
+                bottom: 5,
+            },
+            fixedWidth: 100
+        }
+        
+        
+    
 
         this.anims.create({
             key: 'swish',
@@ -27,16 +51,23 @@ class Play extends Phaser.Scene {
         });
         
 
-        // place tile sprite
-        this.RPMBG = this.add.tileSprite(0, 0, 1366, 768, 'RPMBG').setOrigin(0, 0);
-        this.add.tileSprite(0, 0, 1366, 768, 'grass').setOrigin(0, 0);
+
 
         // add rocket (p1)
         this.p1Rocket = new Rocket(this, game.config.width/2, game.config.height - borderUISize - borderPadding, 'missile').setOrigin(0.5, 0);
-        this.test = this.add.sprite(this.p1Rocket.x-80, this.p1Rocket.y, 'cannon');
+        this.cannon = this.add.sprite(this.p1Rocket.x-80, this.p1Rocket.y, 'cannon');
         this.ship01 = new Spaceship(this, game.config.width + borderUISize*9, borderUISize*4, 'fish', 0, 40, 'swish').play('swish');
         this.ship02 = new Spaceship(this, game.config.width + borderUISize*3, borderUISize*6 + borderPadding*2, 'fish', 0, 20, 'swish').play('swish');
         this.ship03 = new Spaceship(this, game.config.width + borderUISize*18, borderUISize*8 + borderPadding*4, 'fish', 0, 10, 'swish').play('swish');
+        if (!this.ship01.direction) {
+            this.ship01.flipX = true;
+        }
+        if (!this.ship02.direction) {
+            this.ship02.flipX = true;
+        }
+        if (!this.ship03.direction) {
+            this.ship03.flipX = true;
+        }
         //define keys
         keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
         keyR = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
@@ -50,13 +81,14 @@ class Play extends Phaser.Scene {
         });
 
 
-        // white borders
+        //  borders
         this.add.tileSprite(0, 0, game.config.width, borderUISize, 'top').setOrigin(0, 0);
         this.add.tileSprite(0, game.config.height - borderUISize, game.config.width, borderUISize, 'top').setOrigin(0, 0);
         this.add.tileSprite(0, 0, borderUISize, game.config.height, 'side').setOrigin(0, 0);
         this.add.tileSprite(game.config.width - borderUISize, 0, borderUISize, game.config.height, 'side').setOrigin(0, 0);
         // initialize score
         this.p1Score = 0;
+
         let scoreConfig = {
             fontFamily: 'Courier New',
             fontSize: '50px',
@@ -70,28 +102,44 @@ class Play extends Phaser.Scene {
             },
             fixedWidth: 100
         }
+
+
+
         this.scoreLeft = this.add.text(borderUISize + borderPadding, borderUISize + borderPadding*2, this.p1Score,
         scoreConfig);
+
         this.gameOver = false;
         scoreConfig.fixedWidth = 0;
         this.clock = this.time.delayedCall(game.settings.gameTimer, () => {
+            
+
             this.add.text(game.config.width/2, game.config.height/2, 'GAME OVER', scoreConfig).setOrigin(0.5);
             this.add.text(game.config.width/2, game.config.height/2 +64, 'Press(R) to Restart or <- for Menu',
             scoreConfig).setOrigin(0.5);
             this.gameOver = true;
         }, null,this);
+        this.timenow = game.settings.gameTimer/1000 +1;
+        this.timerRight = this.add.text(game.config.width/1.2, borderUISize + borderPadding*2, this.timenow,
+        timeConfig);
+        
     }
 
     update() {        
-        if (this.test.x != this.p1Rocket.x){
-            this.test.x = this.p1Rocket.x;
+
+        if (this.timenow > Math.ceil(this.clock.getRemainingSeconds())) {
+            this.timenow = Math.ceil(this.clock.getRemainingSeconds());
+            this.timerRight.text = this.timenow
+        }
+        if (!this.p1Rocket.isFiring) {
+          if (this.cannon.x != this.p1Rocket.x){
+               this.cannon.x = this.p1Rocket.x;
+           }
         }
 
-        //if (this.test2.x != this.p2Rocket.x){
-        //    this.test2.x = this.p2Rocket.x;
-        //}
+ 
 
 
+   
         
         if(this.gameOver && Phaser.Input.Keyboard.JustDown(keyR)) {
             this.scene.restart();
@@ -100,11 +148,14 @@ class Play extends Phaser.Scene {
             this.scene.start("menuScene");
         }
         this.RPMBG.tilePositionX -= 2;
+        this.lillies.tilePositionX -= 1;
         if(!this.gameOver) {
+ 
             this.p1Rocket.update();
             this.ship01.update();             // update spaceships (x3)
             this.ship02.update();
             this.ship03.update();
+            
         }
        
         // check collisions
@@ -120,6 +171,8 @@ class Play extends Phaser.Scene {
             this.p1Rocket.reset();
             this.shipExplode(this.ship01);
         }
+
+       
     }
 
     checkCollision(rocket, ship) {
@@ -149,5 +202,10 @@ class Play extends Phaser.Scene {
         this.scoreLeft.text = this.p1Score;
         this.sound.play('sfx_explosion');
     }
+        
+
+    
+
+
 
 }
