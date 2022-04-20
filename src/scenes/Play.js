@@ -4,24 +4,39 @@ class Play extends Phaser.Scene {
     }
     preload() {
         // load images/tile sprites
-        this.load.image('rocket', './assets/rocket.png');
-        this.load.image('spaceshipsprite', './assets/spaceshipsprite.png');
-        this.load.image('spacebackgroundsprite', './assets/spacebackgroundsprite.png');
+        this.load.image('missile', './assets/missile.png');
+        this.load.image('fish', './assets/fish.png');
+        this.load.image('bigfish', './assets/bigfish.png');
+        this.load.image('smallfish', './assets/smallfish.png');
+        this.load.image('RPMBG', './assets/RPMBG.png');
+        this.load.image('grass', './assets/grass.png');
+        this.load.image('cannon', './assets/cannon.png');
+        this.load.image('top', './assets/borderh.png');
+        this.load.image('side', './assets/borderv.png');
         // load spritesheet
-        this.load.spritesheet('explosion', './assets/explosion.png', {frameWidth: 64, frameHeight: 32, startFrame: 1, endFrame: 7});
+        this.load.spritesheet('splash', './assets/splash.png', {frameWidth: 115, frameHeight: 56, startFrame: 1, endFrame: 7});
+        this.load.spritesheet('fishanim', './assets/fishsheet.png', {frameWidth: 95, frameHeight: 54, startFrame: 0, endFrame: 8});
     }
 
     create() {
+
+        this.anims.create({
+            key: 'swish',
+            frames: this.anims.generateFrameNumbers('fishanim', { start: 0, end: 8, first: 0}),
+            frameRate: 16
+        });
+        
+
         // place tile sprite
-        this.spacebackgroundsprite = this.add.tileSprite(0, 0, 640, 480, 'spacebackgroundsprite').setOrigin(0, 0);
-        // green UI background
-        this.add.rectangle(0, borderUISize + borderPadding, game.config.width, borderUISize * 2, 0xFF3377).setOrigin(0, 0);
-       
+        this.RPMBG = this.add.tileSprite(0, 0, 1366, 768, 'RPMBG').setOrigin(0, 0);
+        this.add.tileSprite(0, 0, 1366, 768, 'grass').setOrigin(0, 0);
+
         // add rocket (p1)
-        this.p1Rocket = new Rocket(this, game.config.width/2, game.config.height - borderUISize - borderPadding, 'rocket').setOrigin(0.5, 0);
-        this.ship01 = new Spaceship(this, game.config.width + borderUISize*6, borderUISize*4, 'spaceshipsprite', 0, 40).setOrigin(0, 0);
-        this.ship02 = new Spaceship(this, game.config.width + borderUISize*3, borderUISize*5 + borderPadding*2, 'spaceshipsprite', 0, 20).setOrigin(0,0);
-        this.ship03 = new Spaceship(this, game.config.width, borderUISize*6 + borderPadding*4, 'spaceshipsprite', 0, 10).setOrigin(0,0);
+        this.p1Rocket = new Rocket(this, game.config.width/2, game.config.height - borderUISize - borderPadding, 'missile').setOrigin(0.5, 0);
+        this.test = this.add.sprite(this.p1Rocket.x-80, this.p1Rocket.y, 'cannon');
+        this.ship01 = new Spaceship(this, game.config.width + borderUISize*9, borderUISize*4, 'fish', 0, 40, 'swish').play('swish');
+        this.ship02 = new Spaceship(this, game.config.width + borderUISize*3, borderUISize*6 + borderPadding*2, 'fish', 0, 20, 'swish').play('swish');
+        this.ship03 = new Spaceship(this, game.config.width + borderUISize*18, borderUISize*8 + borderPadding*4, 'fish', 0, 10, 'swish').play('swish');
         //define keys
         keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
         keyR = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
@@ -30,21 +45,24 @@ class Play extends Phaser.Scene {
         // animation config
         this.anims.create({
             key: 'explode',
-            frames: this.anims.generateFrameNumbers('explosion', { start: 1, end: 7, first: 1}),
+            frames: this.anims.generateFrameNumbers('splash', { start: 1, end: 7, first: 1}),
             frameRate: 16
         });
+
+
         // white borders
-        this.add.rectangle(0, 0, game.config.width, borderUISize, 0xFFFFFF).setOrigin(0, 0);
-        this.add.rectangle(0, game.config.height - borderUISize, game.config.width, borderUISize, 0xFFFFFF).setOrigin(0, 0);
-        this.add.rectangle(0, 0, borderUISize, game.config.height, 0xFFFFFF).setOrigin(0, 0);
-        this.add.rectangle(game.config.width - borderUISize, 0, borderUISize, game.config.height, 0xFFFFFF).setOrigin(0, 0);
+        this.add.tileSprite(0, 0, game.config.width, borderUISize, 'top').setOrigin(0, 0);
+        this.add.tileSprite(0, game.config.height - borderUISize, game.config.width, borderUISize, 'top').setOrigin(0, 0);
+        this.add.tileSprite(0, 0, borderUISize, game.config.height, 'side').setOrigin(0, 0);
+        this.add.tileSprite(game.config.width - borderUISize, 0, borderUISize, game.config.height, 'side').setOrigin(0, 0);
         // initialize score
         this.p1Score = 0;
         let scoreConfig = {
-            fontFamily: 'Courier',
-            fontSize: '28px',
-            backgroundColor: '#33FF50',
-            color: '#001102',
+            fontFamily: 'Courier New',
+            fontSize: '50px',
+            color: '#FFFFFF',
+            strokeThickness: 10,
+            stroke: '#A97D3E',
             align: 'right',
             padding: {
                 top: 5,
@@ -64,14 +82,24 @@ class Play extends Phaser.Scene {
         }, null,this);
     }
 
-    update() {
+    update() {        
+        if (this.test.x != this.p1Rocket.x){
+            this.test.x = this.p1Rocket.x;
+        }
+
+        //if (this.test2.x != this.p2Rocket.x){
+        //    this.test2.x = this.p2Rocket.x;
+        //}
+
+
+        
         if(this.gameOver && Phaser.Input.Keyboard.JustDown(keyR)) {
             this.scene.restart();
         }
         if (this.gameOver && Phaser.Input.Keyboard.JustDown(keyLEFT)) {
             this.scene.start("menuScene");
         }
-        this.spacebackgroundsprite.tilePositionX -= 4;
+        this.RPMBG.tilePositionX -= 2;
         if(!this.gameOver) {
             this.p1Rocket.update();
             this.ship01.update();             // update spaceships (x3)
@@ -110,7 +138,7 @@ class Play extends Phaser.Scene {
         // temporarily hide ship
         ship.alpha = 0;
         // create explosion sprite at ship's position
-        let boom = this.add.sprite(ship.x, ship.y, 'explosion').setOrigin(0, 0);
+        let boom = this.add.sprite(ship.x, ship.y, 'splash').setOrigin(0, 0);
         boom.anims.play('explode');             // play explode animation
         boom.on('animationcomplete', () => {    // callback after anim completes
           ship.reset();                         // reset ship position
