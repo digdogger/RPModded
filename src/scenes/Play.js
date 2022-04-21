@@ -56,9 +56,9 @@ class Play extends Phaser.Scene {
         // add rocket (p1)
         this.p1Rocket = new Rocket(this, game.config.width/2, game.config.height - borderUISize - borderPadding, 'missile').setOrigin(0.5, 0);
         this.cannon = this.add.sprite(this.p1Rocket.x-80, this.p1Rocket.y, 'cannon');
-        this.ship01 = new Spaceship(this, game.config.width + borderUISize*9, borderUISize*4, 'fish', 0, 40, 'swish').play('swish');
-        this.ship02 = new Spaceship(this, game.config.width + borderUISize*3, borderUISize*6 + borderPadding*2, 'fish', 0, 20, 'swish').play('swish');
-        this.ship03 = new Spaceship(this, game.config.width + borderUISize*18, borderUISize*8 + borderPadding*4, 'fish', 0, 10, 'swish').play('swish');
+        this.ship01 = new Spaceship(this, game.config.width - borderUISize*6, borderUISize*4, 'fish', 0, 40, 'swish').play('swish');
+        this.ship02 = new Spaceship(this, game.config.width - borderUISize*3, borderUISize*6 + borderPadding*2, 'fish', 0, 20, 'swish').play('swish');
+        this.ship03 = new Spaceship(this, game.config.width - borderUISize*18, borderUISize*8 + borderPadding*4, 'fish', 0, 10, 'swish').play('swish');
         if (!this.ship01.direction) {
             this.ship01.flipX = true;
         }
